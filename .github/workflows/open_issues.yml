@@ -1,0 +1,50 @@
+name: Edit issues
+on:
+  issues:
+    types: [opened, edited]
+jobs:
+  build-and-deploy:
+    if: github.actor == 'orzroa'
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@master
+    - name: View the github context
+      run: echo "$JSON"
+      env:
+        JSON: ${{ toJSON(github) }}
+    - name: Reopen the issue
+      run: gh issue reopen "${{ github.event.issue.number }}"
+      env:
+        GH_TOKEN: ${{ github.token }}
+    - name: Remove old file
+      run: |
+        if [ -f "$FROM.md" ]; then
+          rm "$FROM.md"
+          git config --global user.name 'leo'
+          git config --global user.email 'leo@lee.family'
+          git add .
+          git commit -am "\"$FROM.md\" removed"
+          git push
+        fi
+      env:
+        FROM: ${{ github.event.changes.title.from }}
+        TITLE: ${{ github.event.issue.title }}
+    - name: Backup the issue
+      run: echo "$BODY" > "$TITLE.md"
+      env:
+        TITLE: ${{ github.event.issue.title }}
+        BODY: ${{ github.event.issue.body }}
+    - name: Commit and push
+      run: |
+        git config --global user.name 'leo'
+        git config --global user.email 'leo@lee.family'
+        git add .
+        git commit -am "\"$TITLE.md\" backed up"
+        git push
+      env:
+        TITLE: ${{ github.event.issue.title }}
+    - name: Close the issue
+      run: gh issue close "${{ github.event.issue.number }}"
+      env:
+        GH_TOKEN: ${{ github.token }}

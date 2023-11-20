@@ -1,0 +1,28 @@
+name: Delete issue
+on:
+  issues:
+    types: [deleted]
+jobs:
+  build-and-deploy:
+    if: github.actor == 'orzroa'
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@master
+    - name: View the github context
+      run: echo "$JSON"
+      env:
+        JSON: ${{ toJSON(github) }}
+    - name: Remove the issue
+      run: rm "$TITLE.md"
+      env:
+        TITLE: ${{ github.event.issue.title }}
+    - name: Commit and push
+      run: |
+        git config --global user.name 'leo'
+        git config --global user.email 'leo@lee.family'
+        git add .
+        git commit -am "\"$TITLE.md\" removed"
+        git push
+      env:
+        TITLE: ${{ github.event.issue.title }}
