@@ -1,5 +1,3 @@
-[【转】使用Nginx+Lua(OpenResty)开发高性能Web应用 - 微信公众号“99猎头” - ITeye博客](https://www.iteye.com/blog/wely-2353184) 
-
 \[京东技术\]转自[kaitao.toutiao.im](http://kaitao.toutiao.im/), 转载务必声明
 
 在互联网公司，Nginx可以说是标配组件，但是主要场景还是负载均衡、反向代理、代理缓存、限流等场景；而把Nginx作为一个Web容器使用的还不是那么广泛。Nginx的高性能是大家公认的，而Nginx开发主要是以C/C++模块的形式进行，整体学习和开发成本偏高；如果有一种简单的语言来实现Web应用的开发，那么Nginx绝对是把好的瑞士军刀；目前Nginx团队也开始意识到这个问题，开发了nginxScript：可以在Nginx中使用JavaScript进行动态配置一些变量和动态脚本执行；而目前市面上用的非常成熟的扩展是由章亦春将Lua和Nginx粘合的ngx\_lua模块，并且将Nginx核心、LuaJIT、ngx\_lua模块、许多有用的Lua库和常用的第三方Nginx模块组合在一起成为OpenResty，这样开发人员就可以安装OpenResty，使用Lua编写脚本，然后部署到Nginx Web容器中运行。从而非常轻松就能开发出高性能的Web服务。
@@ -9,7 +7,7 @@
 一、ngx_lua简介
 -----------
 
-**1****、Nginx****优点**
+**1 、Nginx 优点**
 
 Nginx设计为一个主进程多个工作进程的工作模式，每个进程是单线程来处理多个连接，而且每个工作进程采用了非阻塞I/O来处理多个连接，从而减少了线程上下文切换，从而实现了公认的高性能、高并发；因此在生成环境中会通过把CPU绑定给Nginx工作进程从而提升其性能；另外因为单线程工作模式的特点，内存占用就非常少了。
 
@@ -17,62 +15,53 @@ Nginx更改配置重启速度非常快，可以毫秒级，而且支持不停止
 
 Nginx模块也是非常多，功能也很强劲，不仅可以作为http负载均衡，Nginx发布1.9.0版本还支持TCP负载均衡，还可以很容易的实现内容缓存、web服务器、反向代理、访问控制等功能。
 
-**2****、Lua****的优点**
+**2 、Lua 的优点**
 
 Lua是一种轻量级、可嵌入式的脚本语言，这样可以非常容易的嵌入到其他语言中使用。另外Lua提供了协程并发，即以同步调用的方式进行异步执行，从而实现并发，比起回调机制的并发来说代码更容易编写和理解，排查问题也会容易。Lua还提供了闭包机制，函数可以作为First Class Value 进行参数传递，另外其实现了标记清除垃圾收集。
 
 因为Lua的小巧轻量级，可以在Nginx中嵌入Lua VM，请求的时候创建一个VM，请求结束的时候回收VM。
 
-**3****、什么是ngx_lua**
+**3 、什么是ngx_lua**
 
 ngx_lua是Nginx的一个模块，将Lua嵌入到Nginx中，从而可以使用Lua来编写脚本，这样就可以使用Lua编写应用脚本，部署到Nginx中运行，即Nginx变成了一个Web容器；这样开发人员就可以使用Lua语言开发高性能Web应用了。
 
 ngx_lua提供了与Nginx交互的很多的API，对于开发人员来说只需要学习这些API就可以进行功能开发，而对于开发web应用来说，如果接触过Servlet的话，其开发和Servlet类似，无外乎就是知道接收请求、参数解析、功能处理、返回响应这几步的API是什么样子的。
 
-**4****、开发环境**
+**4 、开发环境**
 
 我们可以使用[OpenResty](https://openresty.org/)来搭建开发环境，OpenResty将Nginx核心、LuaJIT、许多有用的Lua库和Nginx第三方模块打包在一起；这样开发人员只需要安装OpenResty，不需要了解Nginx核心和写复杂的C/C++模块就可以，只需要使用Lua语言进行Web应用开发了。
 
 如何安装可以参考《[跟我学Nginx+Lua开发](http://jinnianshilongnian.iteye.com/blog/2190344)》。
 
-**5****、OpenResty****生态**
+**5 、OpenResty 生态**
 
 OpenResty提供了一些常用的ngx_lua开发模块：如
 
   lua-resty-memcached
-
   lua-resty-mysql
-
   lua-resty-redis
-
   lua-resty-dns
-
   lua-resty-limit-traffic
-
   lua-resty-template
 
 这些模块涉及到如mysql数据库、redis、限流、模块渲染等常用功能组件；另外也有很多第三方的ngx_lua组件供我们使用，对于大部分应用场景来说现在生态环境中的组件已经足够多了；如果不满足需求也可以自己去写来完成自己的需求。
 
-**6****、场景**
+**6 、场景**
 
 理论上可以使用ngx_lua开发各种复杂的web应用，不过Lua是一种脚本/动态语言，不适合业务逻辑比较重的场景，适合小巧的应用场景，代码行数保持在几十行到几千行。目前见到的一些应用场景：
 
-**web****应用**：会进行一些业务逻辑处理，甚至进行耗CPU的模板渲染，一般流程：mysql/redis/http获取数据、业务处理、产生JSON/XML/模板渲染内容，比如京东的列表页/商品详情页；
-
+**web 应用**：会进行一些业务逻辑处理，甚至进行耗CPU的模板渲染，一般流程：mysql/redis/http获取数据、业务处理、产生JSON/XML/模板渲染内容，比如京东的列表页/商品详情页；
 **接入网关**：实现如数据校验前置、缓存前置、数据过滤、API请求聚合、AB测试、灰度发布、降级、监控等功能，比如京东的交易大Nginx节点、无线部门正在开发的无线网关、单品页统一服务、实时价格、动态服务；
-
-**Web****防火墙**：可以进行IP/URL/UserAgent/Referer黑名单、限流等功能；
-
+**Web 防火墙**：可以进行IP/URL/UserAgent/Referer黑名单、限流等功能；
 **缓存服务器**：可以对响应内容进行缓存，减少到后端的请求，从而提升性能；
-
 **其他**：如静态资源服务器、消息推送服务、缩略图裁剪等。
 
 二、基于Nginx+Lua的常用架构模式
 --------------------
 
-**1****、负载均衡**
+**1 、负载均衡**
 
-**![](https://clipper-1322362908.cos.ap-shanghai.myqcloud.com/images/20231122/3b392512-81bf-46b9-a3d8-ca16250b3c7c.png)**
+**![](https://dl2.iteye.com/upload/attachment/0115/5790/345ff12f-a4a0-3e7e-84d7-ef338e554156.png)**
 
 如上图，我们首先通过LVS+HAProxy将流量转发给核心Nginx 1和核心Nginx 2，即实现了流量的负载均衡，此处可以使用如轮训、一致性哈希等调度算法来实现负载的转发；然后核心Nginx会根据请求特征如“Host:item.jd.com”，转发给相应的业务Nginx节点如单品页Nginx 1。此处为什么分两层呢？
 
@@ -83,18 +72,18 @@ OpenResty提供了一些常用的ngx_lua开发模块：如
 不管是核心Nginx还是业务Nginx，都应该是无状态设计，可以水平扩容。
 
   
-![](https://clipper-1322362908.cos.ap-shanghai.myqcloud.com/images/20231122/68d3e34d-1feb-4689-ad85-47a136a28081.png)
+![](https://dl2.iteye.com/upload/attachment/0115/5792/e0abfcf7-adc9-30a2-bb96-7665d589c4ed.png)
   
  
 
 业务Nginx一般会把请求直接转发给后端的业务应用，如Tomcat、PHP，即将请求内部转发到相应的业务应用；当有的Tomcat出现问题了，可以在这一层摘掉；或者有的业务路径变了在这一层进行rewrite；或者有的后端Tomcat压力太大也可以在这一层降级，减少对后端的冲击；或者业务需要灰度发布时也可以在这一层Nginx上控制。
 
-**2****、单机闭环**
+**2 、单机闭环**
 
 所谓单机闭环即所有想要的数据都能从本服务器直接获取，在大多数时候无需通过网络去其他服务器获取。
 
   
-![](https://clipper-1322362908.cos.ap-shanghai.myqcloud.com/images/20231122/4c724471-15ca-4cb0-a038-2dbea775c13b.png)
+![](https://dl2.iteye.com/upload/attachment/0115/5794/4819b18c-91c2-3b10-8722-4549e01797a1.png)
   
  
 
@@ -104,7 +93,7 @@ OpenResty提供了一些常用的ngx_lua开发模块：如
 
 2.2、第二张图，是读取本机文件系统，如静态资源合并：比如访问[http://item.jd.com/1856584.html](http://item.jd.com/1856584.html)，查看源码会发现【<link type="text/css" rel="stylesheet" href="[//misc.360buyimg.com/jdf/1.0.0/unit/??ui-base/1.0.0/ui-base.css,shortcut/2.0.0/shortcut.css,global-header/1.0.0/global-header.css,myjd/2.0.0/myjd.css,nav/2.0.0/nav.css,shoppingcart/2.0.0/shoppingcart.css,global-footer/1.0.0/global-footer.css,service/1.0.0/service.css](http://misc.360buyimg.com/jdf/1.0.0/unit/??ui-base/1.0.0/ui-base.css,shortcut/2.0.0/shortcut.css,global-header/1.0.0/global-header.css,myjd/2.0.0/myjd.css,nav/2.0.0/nav.css,shoppingcart/2.0.0/shoppingcart.css,global-footer/1.0.0/global-footer.css,service/1.0.0/service.css)"/>】这种请求，即多个请求合并为一个发给服务端，服务端进行了文件资源的合并；
 
-![](https://clipper-1322362908.cos.ap-shanghai.myqcloud.com/images/20231122/5edc90f0-e60a-430e-8923-1162aebc16bc.png)
+![](https://dl2.iteye.com/upload/attachment/0115/5796/09967770-6eff-3e25-a232-02c601650a3f.png)
   
  
 
@@ -112,7 +101,7 @@ OpenResty提供了一些常用的ngx_lua开发模块：如
 
 还一些业务型应用场景如下图所示
 
-![](https://clipper-1322362908.cos.ap-shanghai.myqcloud.com/images/20231122/a5a715d0-d187-444f-8e41-ab38e36ff5c6.png)
+![](https://dl2.iteye.com/upload/attachment/0115/5798/dcd069c5-071d-3324-a9f4-80ca0d8879e1.png)
   
  
 
@@ -120,7 +109,7 @@ OpenResty提供了一些常用的ngx_lua开发模块：如
 
 比如商品页面的架构我们可以这样：
 
-![](https://clipper-1322362908.cos.ap-shanghai.myqcloud.com/images/20231122/d9b3eff7-842a-42c8-99af-ded18542cdb3.png)
+![](https://dl2.iteye.com/upload/attachment/0115/5800/91fdf6ee-0407-36a8-9e0d-d9475353716e.png)
   
  
 
@@ -130,17 +119,17 @@ OpenResty提供了一些常用的ngx_lua开发模块：如
 
 2.3、 第三张图和第二张图的不同处是不再直接读取文件系统，而是读取本机的Redis或者Redis集群或者如SSDB这种持久化存储或者其他存储系统都是可以的，比如直接说的商品页面可以使用SSDB进行存储实现。文件系统一个很大的问题是当多台服务器时需要Worker去写多台服务器，而这个过程可以使用SSDB的主从实现。
 
-**![](https://clipper-1322362908.cos.ap-shanghai.myqcloud.com/images/20231122/8054edc6-7293-4339-a668-4935cd645f4b.png)**此处可以看到，不管是图二还是图三架构，都需要Worker去进行数据推送；假设本机数据丢了可怎么办？因此实际大部分应用不会是完全单机闭环的，而是会采用如下架构：
+**![](https://dl2.iteye.com/upload/attachment/0115/5802/3cad4cdc-b642-3b91-8748-5354c2feab4f.png)**此处可以看到，不管是图二还是图三架构，都需要Worker去进行数据推送；假设本机数据丢了可怎么办？因此实际大部分应用不会是完全单机闭环的，而是会采用如下架构：
 
-**![](https://clipper-1322362908.cos.ap-shanghai.myqcloud.com/images/20231122/91f99b53-6ede-45f6-94d6-17ab1058000a.png)**
+**![](https://dl2.iteye.com/upload/attachment/0115/5804/d21aafd1-4195-363d-b0ba-865ae24f23a1.png)**
 
-**![](https://clipper-1322362908.cos.ap-shanghai.myqcloud.com/images/20231122/137d0455-fc21-446e-a9e3-02e5f679092f.png)**
+**![](https://dl2.iteye.com/upload/attachment/0115/5806/0beb2443-c1fc-37d2-be14-f46c8d55d1f7.png)**
 
 即首先读本机，如果没数据会回源到相应的Web应用从数据源拉取原始数据进行处理。这种架构的大部分场景本机都可以命中数据，只有很少一部分情况会回源到Web应用。
 
 如京东的实时价格/动态服务就是采用类似架构。
 
-**3****、分布式闭环**
+**3 、分布式闭环**
 
 单机闭环会遇到如下两个主要问题： 1、数据不一致问题（比如没有采用主从架构导致不同服务器数据不一致）；2、遇到存储瓶颈（磁盘或者内存遇到了天花板）。
 
@@ -148,7 +137,7 @@ OpenResty提供了一些常用的ngx_lua开发模块：如
 
 如采用如下架构，按照尾号将内容分布到多台服务器。
 
-![](https://clipper-1322362908.cos.ap-shanghai.myqcloud.com/images/20231122/ecfb3c25-5aa3-4799-96aa-ad134ea503cd.png)
+![](https://dl2.iteye.com/upload/attachment/0115/5808/cf97972c-4681-3b69-b221-dbec02dc547b.png)
   
  
 
@@ -156,54 +145,44 @@ OpenResty提供了一些常用的ngx_lua开发模块：如
 
 JIMDB集群会进行多机房主从同步，各自机房读取自己机房的从JIMDB集群，如下图
 
-![](https://clipper-1322362908.cos.ap-shanghai.myqcloud.com/images/20231122/3e9ff26d-45df-49bf-ab12-7f7fe19d4055.png)
+![](https://dl2.iteye.com/upload/attachment/0115/5810/48d1cc26-f5db-3194-bff3-84dec58e5590.png)
   
  
 
-**4****、接入网关**
+**4 、接入网关**
 
 接入网关也可以叫做接入层，即接收到流量的入口，在入口我们可以进行如下事情：
 
-![](https://clipper-1322362908.cos.ap-shanghai.myqcloud.com/images/20231122/0e48101e-d2ff-4811-9884-5e9cad4ced77.png)
+![](https://dl2.iteye.com/upload/attachment/0115/5812/db4ba449-4cf2-385f-ae00-a163d8f26e12.png)
   
  
 
-**4.1****、核心接入Nginx****会做如下事情：** 
+**4.1 、核心接入Nginx 会做如下事情：** 
 
 1、动态负载均衡；1、普通流量走一致性哈希，提升命中率；热点流量走轮训减少单服务器压力；2、根据请求特征将流量分配到不同分组并限流（爬虫、或者流量大的IP）；3、动态流量（动态增加upstream或者减少upstream或者动态负载均衡）可以使用balancer\_by\_lua或者微博开源的upsync；
-
 2、防DDOS攻击限流：可以将请求日志推送到实时计算集群，然后将需要限流的IP推送到核心Nginx进行限流；
-
 3、非法请求过滤：比如应该有Referer却没有，或者应该带着Cookie却没有Cookie；
-
 4、请求聚合：比如请求的是http://c.3.cn/proxy?methods=a,b,c，核心接入Nginx会在服务端把Nginx并发的请求并把结果聚合然后一次性吐出；
-
 5、请求头过滤：有些业务是不需要请求头的，因此可以在往业务Nginx转发时把这些数据过滤掉；
-
 6、缓存服务：使用Nginx Proxy Cache实现内容页面的缓存；
 
-**4.2****、业务Nginx****会做如下事情：** 
+**4.2 、业务Nginx 会做如下事情：** 
 
 1、缓存：对于读服务会使用大量的缓存来提升性能，我们在设计时主要有如下缓存应用：首先读取Nginx本地缓存  Shared Dict或者Nginx Proxy Cache，如果有直接返回内容给用户；如果本地缓存不命中，则会读取分布式缓存如Redis，如果有直接返回；如果还是不命中则回源到Tomcat应用读取DB或调用服务获取数据。另外我们会按照维度进行数据的缓存。
-
 2、业务逻辑：我们会进行一些数据校验/过滤逻辑前置（如商品ID必须是数字）、业务逻辑前置（获取原子数据，然后在Nginx上写业务逻辑）。
-
 3、细粒度限流：按照接口特征和接口吞吐量来实现动态限流，比如后端服务快扛不住了，那我们就需要进行限流，被限流的请求作为降级请求处理；通过lua-resty-limit-traffic可以通过编程实现更灵活的降级逻辑，如根据用户、根据URL等等各种规则，如降级了是让用户请求等待（比如sleep 100ms，这样用户请求就慢下来了，但是服务还是可用）还是返回降级内容。
-
 4、降级：降级主要有两种：主动降级和被动降级；如请求量太大扛不住了，那我们需要主动降级；如后端挂了或者被限流了或者后端超时了，那我们需要被动降级。降级方案可以是：1、返回默认数据如库存默认有货；2、返回静态页如预先生成的静态页；3、部分用户降级，告诉部分用户等待下再操作；4、直接降级，服务没数据，比如商品页面的规格参数不展示；5、只降级回源服务，即可以读取缓存的数据返回，实现部分可用，但是不会回源处理；
-
 5、AB测试/灰度发布：比如要上一个新的接口，可以通过在业务Nginx通过Lua写复杂的业务规则实现不同的人看到不同的版本。
-
 6、服务质量监控：我们可以记录请求响应时间、缓存响应时间、反向代理服务响应时间来详细了解到底哪块服务慢了；另外记录非200状态码错误来了解服务的可用率。
 
 京东的交易大Nginx节点、无线部门正在开发的无线Nginx网关、和单品页统一服务都是接入网关的实践，而单品页统一服务架构可以参考《[京东商品详情页服务闭环实践](http://jinnianshilongnian.iteye.com/blog/2258111)》。
 
-**5****、Web****应用**
+**5 、Web 应用**
 
 此处所说的Web应用指的是页面模板渲染类型应用或者API服务类型应用；比如京东列表页/商品详情页就是一个模板渲染类型的应用，核心业务逻辑都是使用Lua写的，部署到Nginx容器。目前核心业务代码行数有5000多行，模板页面有2000多行，涉及到大量的计算逻辑，性能数据可以参考《[构建需求响应式亿级商品详情页](http://jinnianshilongnian.iteye.com/blog/2235572)》。
 
   
-![](https://clipper-1322362908.cos.ap-shanghai.myqcloud.com/images/20231122/7f1aa4f4-9bc5-4154-85e6-9c4940129fed.png)
+![](https://dl2.iteye.com/upload/attachment/0115/5816/a3f21641-528b-3c71-b47a-1443de8163ab.png)
   
  
 
@@ -214,86 +193,94 @@ JIMDB集群会进行多机房主从同步，各自机房读取自己机房的从
 
 开发一个Web应用我们需要从项目搭建、功能开发、项目部署几个层面完成。
 
-**3.1****、项目搭建** 
+**3.1 、项目搭建** 
 
-Java代码   ![](https://clipper-1322362908.cos.ap-shanghai.myqcloud.com/images/20231122/43792ca4-d4bb-4e15-9004-236c6f704628.png)
+Java代码   ![](https://jinnianshilongnian.iteye.com/images/icon_star.png)
 
-1.  /export/App/nginx-app  
-2.   -------bin(脚本)  
-3.   ------------start.sh  
-4.   ------------stop.sh  
-5.   -------config(配置文件)  
-6.   ------------nginx.conf  
-7.   ------------domain  
-8.   ----------------nginx_product.conf  
-9.   ------------resources.properties  
-10.   -------lua(业务代码)  
-11.   ------------init.lua  
-12.   ------------product_controller.lua  
-13.   -------template(模板)  
-14.   --------------prodoct.html  
-15.   -------lualib(公共Lua库)  
-16.   ------------jd  
-17.   ----------------product_util.lua  
-18.   ----------------product_data.lua  
-19.   ------------resty  
-20.   ----------------redis.lua  
-21.   ----------------template.lua  
+```
+/export/App/nginx-app  
+ -------bin(脚本)  
+ ------------start.sh  
+ ------------stop.sh  
+ -------config(配置文件)  
+ ------------nginx.conf  
+ ------------domain  
+ ----------------nginx_product.conf  
+ ------------resources.properties  
+ -------lua(业务代码)  
+ ------------init.lua  
+ ------------product_controller.lua  
+ -------template(模板)  
+ --------------prodoct.html  
+ -------lualib(公共Lua库)  
+ ------------jd  
+ ----------------product_util.lua  
+ ----------------product_data.lua  
+ ------------resty  
+ ----------------redis.lua  
+ ----------------template.lua 
+ ```
 
  整个项目结构从启停脚本、配置文件、公共组件、业务代码、模板代码几块进行划分。
 
-**1****、启停脚本**
+**1 、启停脚本**
 
 启停脚本放在项目目录/export/App/nginx-app/bin/下。
 
 start.sh是启动和更新脚本，即如果nginx没有启动则启动起来，否则reload： 
 
-Java代码   ![](https://clipper-1322362908.cos.ap-shanghai.myqcloud.com/images/20231122/a5624dcb-febe-4f49-84fd-1ad82d844e7b.png)
+Java代码   ![](https://jinnianshilongnian.iteye.com/images/icon_star.png)
 
-1.  if nginx没启动 then  
-2.    sudo /export/servers/nginx/sbin/nginx  -t -c /export/App/nginx-app/config/nginx.conf  
-3.    sudo /export/servers/nginx/sbin/nginx  -c /export/App/nginx-app/config/nginx.conf  
-4.  else  
-5.    sudo /export/servers/nginx/sbin/nginx  -t  
-6.    sudo /export/servers/nginx/sbin/nginx  -s reload  
-7.  end    
+```
+if nginx没启动 then  
+  sudo /export/servers/nginx/sbin/nginx  -t -c /export/App/nginx-app/config/nginx.conf  
+  sudo /export/servers/nginx/sbin/nginx  -c /export/App/nginx-app/config/nginx.conf  
+else  
+  sudo /export/servers/nginx/sbin/nginx  -t  
+  sudo /export/servers/nginx/sbin/nginx  -s reload  
+end
+```
 
 stop.sh是停止Nginx脚本： 
 
-Java代码   ![](https://clipper-1322362908.cos.ap-shanghai.myqcloud.com/images/20231122/204ebfd8-1e78-422e-9482-d2fea04b4e31.png)
+Java代码   ![](https://jinnianshilongnian.iteye.com/images/icon_star.png)
 
-1.  sudo /export/servers/nginx/sbin/nginx  -s quit   
+```
+sudo /export/servers/nginx/sbin/nginx  -s quit   
+```
 
-**2****、配置文件**
+**2 、配置文件**
 
 配置文件放在/export/App/nginx-app/config目录下，包括了nginx.conf配置文件、nginx项目配置文件和资源配置文件。
 
-**nginx.confg****配置文件**  
+**nginx.confg 配置文件**  
 
-Java代码   ![](https://clipper-1322362908.cos.ap-shanghai.myqcloud.com/images/20231122/8c7da6c9-21d0-4d2b-9928-0c13ef35753f.png)
+Java代码   ![](https://jinnianshilongnian.iteye.com/images/icon_star.png)
 
-1.  worker_processes  1;  
-2.  events {  
-3.      worker_connections  1024;  
-4.  }  
-5.  http {  
-6.     include       mime.types;  
-7.     default_type  text/html;  
-8.     #gzip相关  
-9.     #超时时间  
-10.     #日志格式  
-11.     #反向代理配置  
-
-13.     #lua依赖路径  
-14.     lua\_package\_path  "/export/App/nginx-app/lualib/?.lua;;";  
-15.     lua\_package\_cpath  "/export/App/nginx-app/lualib/?.so;;";  
-
-17.     #server配置  
-18.     include /export/App/nginx-app/config/domains/*;  
-
-20.     #初始化脚本  
-21.     init\_by\_lua_file "/export/App/nginx-app/lua/init.lua";  
-22.  }   
+```
+worker_processes  1;  
+events {  
+    worker_connections  1024;  
+}  
+http {  
+   include       mime.types;  
+   default_type  text/html;  
+   #gzip相关  
+   #超时时间  
+   #日志格式  
+   #反向代理配置  
+  
+   #lua依赖路径  
+   lua_package_path  "/export/App/nginx-app/lualib/?.lua;;";  
+   lua_package_cpath  "/export/App/nginx-app/lualib/?.so;;";  
+  
+   #server配置  
+   include /export/App/nginx-app/config/domains/*;  
+  
+   #初始化脚本  
+   init_by_lua_file "/export/App/nginx-app/lua/init.lua";  
+}  
+```
 
 对于nginx.conf会进行一些通用的配置，如工作进程数、超时时间、压缩、日志格式、反向代理等相关配置；另外需要指定如下配置：
 
@@ -303,72 +290,76 @@ include /export/App/nginx-app/config/domains/*：用于加载server相关的配�
 
 init\_by\_lua_file "/export/App/nginx-app/lua/init.lua"：执行项目的一些初始化配置，比如加载配置文件。
 
-**nginx****项目配置文件**
+**nginx 项目配置文件**
 
 /export/App/nginx-app/config/domains/nginx_product.conf用于配置当前web应用的一些server相关的配置： 
 
-Java代码   ![](https://clipper-1322362908.cos.ap-shanghai.myqcloud.com/images/20231122/ee23d40b-67c0-4707-a39c-c990dfe3c8f7.png)
+Java代码   ![](https://jinnianshilongnian.iteye.com/images/icon_star.png)
 
-1.  #upstream  
-2.  upstream item\_http\_upstream {  
-3.      server 192.168.1.1 max_fails=2 fail_timeout=30s weight=5;  
-4.      server 192.168.1.2 max_fails=2 fail_timeout=30s weight=5;  
-5.  }  
-6.  #缓存  
-7.  lua\_shared\_dict item\_local\_shop_cache 600m;  
-8.  server {  
-9.       listen                   80;  
-10.       server_name              item.jd.com item.jd.hk;  
-11.       #模板文件从哪加载  
-12.      set $template_root "/export/App/nginx-app/template ";  
-13.       #url映射  
-14.          location ~* "^/product/(\\d+)\\.html$" {  
-15.              rewrite /product/(.*)    http:  
-16.          }  
-17.      location ~* "^/(\\d{6,12})\\.html$" {  
-18.              default_type text/html;  
-19.              charset gbk;  
-20.              lua\_code\_cache on;  
-21.              content\_by\_lua_file "/export/App/nginx-app/lua/product_controller.lua";  
-22.          }  
-23.  }   
+```
+#upstream  
+upstream item_http_upstream {  
+    server 192.168.1.1 max_fails=2 fail_timeout=30s weight=5;  
+    server 192.168.1.2 max_fails=2 fail_timeout=30s weight=5;  
+}  
+#缓存  
+lua_shared_dict item_local_shop_cache 600m;  
+server {  
+     listen                   80;  
+     server_name              item.jd.com item.jd.hk;  
+     #模板文件从哪加载  
+    set $template_root "/export/App/nginx-app/template ";  
+     #url映射  
+        location ~* "^/product/(\d+)\.html$" {  
+            rewrite /product/(.*)    http://item.jd.com/$1 permanent;  
+        }  
+    location ~* "^/(\d{6,12})\.html$" {  
+            default_type text/html;  
+            charset gbk;  
+            lua_code_cache on;  
+            content_by_lua_file "/export/App/nginx-app/lua/product_controller.lua";  
+        }  
+}  
+```
 
 我们需要指定如upstream、共享字典配置、server配置、模板文件从哪加载、url映射，比如我们访问http://item.jd.com/1856584.html将交给/export/App/nginx-app/lua/product_controller.lua处理；也就是说我们项目的入口就有了。
 
 资源配置文件resources.properties包含了我们的一些比如开关的配置、缓存服务器地址的配置等等。
 
-**3****、业务代码**
+**3 、业务代码**
 
 /export/App/nginx-app/lua/目录里存放了我们的lua业务代码，init.lua用于读取如resources.properties来进行一些项目初始化；product_controller.lua可以看成Java Web中的Servlet，接收、处理、响应用户请求。
 
-**4****、模板**
+**4 、模板**
 
 模板文件放在/export/App/nginx-app/template/目录下，使用相应的模板引擎进行编写页面模板，然后渲染输出。
 
-**5****、公共Lua****库**
+**5 、公共Lua 库**
 
 存放了一些如redis、template等相关的公共Lua库，还有一些我们项目中通用的工具库如product_util.lua。
 
 到此一个简单的项目的结构就介绍完了，对于开发一个项目来说还会牵扯到分模块等工作，不过对于我们这种Lua应用来说，建议不要过度抽象，尽量小巧即可。
 
-**3.2****、功能开发**
+**3.2 、功能开发**
 
 接下来就需要使用相应的API来实现我们的业务了，比如product_controller.lua：
 
-Java代码   ![](https://clipper-1322362908.cos.ap-shanghai.myqcloud.com/images/20231122/d3c1c636-7992-4051-95a6-2b68a764e9f5.png)
+Java代码   ![](https://jinnianshilongnian.iteye.com/images/icon_star.png)
 
-1.  --加载Lua模块库  
-2.  local template = require("resty.template")    
-3.  --1、获取请求参数中的商品ID  
-4.  local skuId = ngx.req.get\_uri\_args()\["skuId"\];  
-5.  --2、调用相应的服务获取数据  
-6.  local data = api.getData(skuId)  
-
-8.  --3、渲染模板  
-9.  local func = template.compile("product.html")    
-10.  local content = func(data)    
-11.  --4、通过ngx API输出内容    
-12.  ngx.say(content)     
+```
+--加载Lua模块库  
+local template = require("resty.template")    
+--1、获取请求参数中的商品ID  
+local skuId = ngx.req.get_uri_args()["skuId"];  
+--2、调用相应的服务获取数据  
+local data = api.getData(skuId)  
+  
+--3、渲染模板  
+local func = template.compile("product.html")    
+local content = func(data)    
+--4、通过ngx API输出内容    
+ngx.say(content)     
+``` 
 
 开发完成后将项目部署到测试环境，执行start.sh启动nginx然后进行测试。
 
@@ -382,35 +373,23 @@ Java代码   ![](https://clipper-1322362908.cos.ap-shanghai.myqcloud.com/images/
 到此我们对于Nginx开发已经有了一个整体的认识，对于Nginx粘合Lua来开发应用可以说是一把锋利的瑞士军刀，可以帮我们很容易的解决很多问题，可以开发Web应用、接入网关、API网关、消息推送、日志采集等应用，不过个人认为适合开发业务逻辑单一、核心代码行数较少的应用，不适合业务逻辑复杂、功能繁多的业务型或者企业级应用；最后我们总结下基于Nginx+Lua的常用架构模式中一些常见实践和场景：
 
 **动态负载均衡；**
-
 **防火墙**（DDOS、IP/URL/UserAgent/Referer黑名单、防盗链等）**；**
-
 **限流；**
-
 **降级；**
-
 **AB测试/灰度发布；**
-
 **多级缓存模式；**
-
 **服务端请求聚合；**
-
 **服务质量监控。** 
+
 
 **一些问题**
 
 1、在开发nginx应用时使用UTF-8编码可以减去很多麻烦；
-
 2、GBK转码解码时使用GB18030，否则一些特殊字符会出现乱码；
-
 3、cjson库对于如\\uab1这种错误的unicode转码会失败，可以使用纯Lua编写的dkjson；
-
 4、社区版nginx不支持upstream的域名动态解析；可以考虑proxy\_pass http://p.3.local/prices/mgets$is\_args$args，然后配合resolver来实现；或者在lua中进行http调用；如果DNS遇到性能瓶颈可以考虑在本机部署如dnsmasq来缓存；或者考虑使用balancer\_by\_lua功能实现动态upstream；
-
 5、为响应添加处理服务器IP的响应头，方便定位问题；
-
 6、根据业务设置合理的超时时间；
-
 7、走CDN的业务当发生错误时返回的500/503/302/301等非正常响应不要设置缓存。
 
 五、参考文资料
