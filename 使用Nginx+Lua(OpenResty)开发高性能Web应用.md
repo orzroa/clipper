@@ -195,8 +195,6 @@ JIMDB集群会进行多机房主从同步，各自机房读取自己机房的从
 
 **3.1 、项目搭建** 
 
-Java代码   ![](https://jinnianshilongnian.iteye.com/images/icon_star.png)
-
 ```
 /export/App/nginx-app  
  -------bin(脚本)  
@@ -229,8 +227,6 @@ Java代码   ![](https://jinnianshilongnian.iteye.com/images/icon_star.png)
 
 start.sh是启动和更新脚本，即如果nginx没有启动则启动起来，否则reload： 
 
-Java代码   ![](https://jinnianshilongnian.iteye.com/images/icon_star.png)
-
 ```
 if nginx没启动 then  
   sudo /export/servers/nginx/sbin/nginx  -t -c /export/App/nginx-app/config/nginx.conf  
@@ -243,8 +239,6 @@ end
 
 stop.sh是停止Nginx脚本： 
 
-Java代码   ![](https://jinnianshilongnian.iteye.com/images/icon_star.png)
-
 ```
 sudo /export/servers/nginx/sbin/nginx  -s quit   
 ```
@@ -254,8 +248,6 @@ sudo /export/servers/nginx/sbin/nginx  -s quit
 配置文件放在/export/App/nginx-app/config目录下，包括了nginx.conf配置文件、nginx项目配置文件和资源配置文件。
 
 **nginx.confg 配置文件**  
-
-Java代码   ![](https://jinnianshilongnian.iteye.com/images/icon_star.png)
 
 ```
 worker_processes  1;  
@@ -293,8 +285,6 @@ init\_by\_lua_file "/export/App/nginx-app/lua/init.lua"：执行项目的一些�
 **nginx 项目配置文件**
 
 /export/App/nginx-app/config/domains/nginx_product.conf用于配置当前web应用的一些server相关的配置： 
-
-Java代码   ![](https://jinnianshilongnian.iteye.com/images/icon_star.png)
 
 ```
 #upstream  
@@ -343,8 +333,6 @@ server {
 **3.2 、功能开发**
 
 接下来就需要使用相应的API来实现我们的业务了，比如product_controller.lua：
-
-Java代码   ![](https://jinnianshilongnian.iteye.com/images/icon_star.png)
 
 ```
 --加载Lua模块库  
