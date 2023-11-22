@@ -1,4 +1,7 @@
- 一、LDAP 基础教程
+# [CentOS 7 环境下 OpenLDAP 的安装与配置 – 王耍耍](https://wangshuashua.com/centos-7-install-openldap/) 
+
+
+一、LDAP 基础教程
 -----------
 
 LDAP 全称轻量级目录访问协议（英文：Lightweight Directory Access Protocol），是一个运行在 TCP/IP 上的目录访问协议。目录是一个特殊的数据库，它的数据经常被查询，但是不经常更新。其专门针对读取、浏览和搜索操作进行了特定的优化。目录一般用来包含描述性的，基于属性的信息并支持精细复杂的过滤能力。比如 DNS 协议便是一种最被广泛使用的目录服务。
@@ -255,4 +258,3 @@ $ docker run --name ldap_web -p 80:80 -p 443:443 --link ldap_core:ldap_core --en
 *   [Install phpLDAPadmin to operate LDAP Server in CentOS 7](https://www.server-world.info/en/note?os=CentOS_7&p=openldap&f=7)
 *   每一个 LDAP 条目的区别名 dn 都是由两个部分组成的：相对区别名 rdn 以及该条目在 LDAP 目录中的位置。
 
-[CentOS 7 环境下 OpenLDAP 的安装与配置 – 王耍耍](https://wangshuashua.com/centos-7-install-openldap/) 
