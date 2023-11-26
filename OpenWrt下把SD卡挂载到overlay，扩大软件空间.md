@@ -80,8 +80,7 @@ tmpfs                      512         0       512   0% /dev
 
 这时候就可以重启你的路由器了，看看是否成功自动挂载。
 
-[![](https://clipper-1322362908.cos.ap-shanghai.myqcloud.com/images/20231126/edd66322-6981-4cae-b84e-f7505176fa67.png)
-](https://blog.samnya.cn/wp-content/uploads/2018/11/QQ%E6%88%AA%E5%9B%BE20181117012658.png)
+![](https://clipper-1322362908.cos.ap-shanghai.myqcloud.com/images/20231126/edd66322-6981-4cae-b84e-f7505176fa67.png)
 
 看，这时候想安装什么软件都可以了。
 
